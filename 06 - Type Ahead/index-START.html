@@ -18,8 +18,11 @@
   const endpoint = 'https://gist.githubusercontent.com/Miserlou/c5cd8364bf9b2420bb29/raw/2bf258763cdddd704f8ffd3ea9a3e81d25e2c6f6/cities.json';
   const resultList = document.querySelector('.suggestions');
 
-  function filterJSONForKeyword(data, prop, keyword) {
-    return data.filter((location) => location[prop].includes(keyword));
+  function findMatches(data, keyword) {
+    return data.filter((location) => {
+      const regex = new RegExp(keyword, 'gi');
+      return location.city.match(regex) || location.state.match(regex);
+    });
   }
 
   function fetchJSON(endpoint, callback) {
@@ -41,11 +44,8 @@
 
   function handleUserInput(event, data) {
     event.preventDefault()
-    let keyword = event.target.querySelector('input').value;
-    let results = [
-      ...filterJSONForKeyword(data, 'city', keyword), 
-      ...filterJSONForKeyword(data, 'city', keyword)
-    ];
+    const keyword = event.target.querySelector('input').value;
+    const results = findMatches(data, keyword);
     updateList(results);
   }
 
