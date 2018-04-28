@@ -17,23 +17,32 @@
 <script>
   const endpoint = 'https://gist.githubusercontent.com/Miserlou/c5cd8364bf9b2420bb29/raw/2bf258763cdddd704f8ffd3ea9a3e81d25e2c6f6/cities.json';
 
-  const request = new XMLHttpRequest();
-  request.open('GET', endpoint);
-  request.onload = function() {
-    if (request.status >= 200 && request.status < 400) {
-      const data = JSON.parse(request.responseText);
-      console.log('JSON loaded and processed');
-      console.table(filterForKeyword(data, 'New'));
-    } else {
-      console.log(`Received status code ${request.status}; could not retreive JSON data`);
-    }
-  }
-
   function filterForKeyword(data, keyword) {
     return data.filter((location) => location.city.includes(keyword));
   }
 
-  request.send();
+  function requestAJAX(endpoint, callback) {
+    const request = new XMLHttpRequest();
+
+    request.open('GET', endpoint);
+    request.onload = function() {
+      if (request.status >= 200 && request.status < 400) {
+        callback(request.responseText);
+      } else {
+        console.log(`Received status code ${request.status}; could not retreive JSON data`);
+      }
+    }
+    request.send();
+  }
+
+  function init() {
+    requestAJAX(endpoint, (response) => {
+      const data = JSON.parse(response);
+      console.table(filterForKeyword(data, 'New'));
+    })
+  }
+
+  init();
 
 </script>
   </body>
