@@ -16,6 +16,7 @@
   </form>
 <script>
   const endpoint = 'https://gist.githubusercontent.com/Miserlou/c5cd8364bf9b2420bb29/raw/2bf258763cdddd704f8ffd3ea9a3e81d25e2c6f6/cities.json';
+  const resultList = document.querySelector('.suggestions');
 
   function filterJSONForKeyword(data, prop, keyword) {
     return data.filter((location) => location[prop].includes(keyword));
@@ -36,17 +37,22 @@
   }
 
   function updateList(results) {
-
+    resultList.innerHTML = '';
+    results.forEach(location => {
+      let li = document.createElement('li');
+      li.innerHTML = `${location.city}, ${location.state}`;
+      resultList.appendChild(li)
+    });
   }
 
   function handleUserInput(event, data) {
     event.preventDefault()
     let keyword = event.target.querySelector('input').value;
-    let result = [
+    let results = [
       ...filterJSONForKeyword(data, 'city', keyword), 
       ...filterJSONForKeyword(data, 'city', keyword)
     ];
-    console.table(result);
+    updateList(results);
   }
 
   function init() {
