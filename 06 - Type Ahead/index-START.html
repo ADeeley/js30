@@ -17,8 +17,8 @@
 <script>
   const endpoint = 'https://gist.githubusercontent.com/Miserlou/c5cd8364bf9b2420bb29/raw/2bf258763cdddd704f8ffd3ea9a3e81d25e2c6f6/cities.json';
 
-  function filterForKeyword(data, keyword) {
-    return data.filter((location) => location.city.includes(keyword));
+  function filterJSONForKeyword(data, prop, keyword) {
+    return data.filter((location) => location[prop].includes(keyword));
   }
 
   function requestAJAX(endpoint, callback) {
@@ -35,10 +35,27 @@
     request.send();
   }
 
+  function updateList(results) {
+
+  }
+
+  function handleUserInput(event, data) {
+    event.preventDefault()
+    let keyword = event.target.querySelector('input').value;
+    let result = [
+      ...filterJSONForKeyword(data, 'city', keyword), 
+      ...filterJSONForKeyword(data, 'city', keyword)
+    ];
+    console.table(result);
+  }
+
   function init() {
     requestAJAX(endpoint, (response) => {
       const data = JSON.parse(response);
-      console.table(filterForKeyword(data, 'New'));
+      document.querySelector('.search-form')
+        .addEventListener('submit', (event) => {
+          handleUserInput(event, data);
+      });
     })
   }
 
