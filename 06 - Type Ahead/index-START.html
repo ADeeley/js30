@@ -22,18 +22,12 @@
     return data.filter((location) => location[prop].includes(keyword));
   }
 
-  function requestAJAX(endpoint, callback) {
-    const request = new XMLHttpRequest();
-
-    request.open('GET', endpoint);
-    request.onload = function() {
-      if (request.status >= 200 && request.status < 400) {
-        callback(request.responseText);
-      } else {
-        console.log(`Received status code ${request.status}; could not retreive JSON data`);
-      }
-    }
-    request.send();
+  function fetchJSON(endpoint, callback) {
+    const cities = [];
+    fetch(endpoint)
+      .then(blob => blob.json())
+      .then(data => cities.push(...data))
+    callback(cities);
   }
 
   function updateList(results) {
@@ -56,8 +50,7 @@
   }
 
   function init() {
-    requestAJAX(endpoint, (response) => {
-      const data = JSON.parse(response);
+    fetchJSON(endpoint, (data) => {
       document.querySelector('.search-form')
         .addEventListener('submit', (event) => {
           handleUserInput(event, data);
