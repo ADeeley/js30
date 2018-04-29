@@ -17,6 +17,7 @@
 <script>
   const endpoint = 'https://gist.githubusercontent.com/Miserlou/c5cd8364bf9b2420bb29/raw/2bf258763cdddd704f8ffd3ea9a3e81d25e2c6f6/cities.json';
   const resultList = document.querySelector('.suggestions');
+  const searchInput = document.querySelector('.search');
 
   function findMatches(data, keyword) {
     return data.filter((location) => {
@@ -25,37 +26,48 @@
     });
   }
 
-  function fetchJSON(endpoint, callback) {
+  function fetchJSON(endpoint) {
     const cities = [];
     fetch(endpoint)
       .then(blob => blob.json())
       .then(data => cities.push(...data))
-    callback(cities);
+    return cities;
   }
 
-  function updateList(results) {
-    resultList.innerHTML = '';
-    results.forEach(location => {
-      let li = document.createElement('li');
-      li.innerHTML = `${location.city}, ${location.state}`;
-      resultList.appendChild(li)
-    });
+  function numberWithCommas(x) {
+    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  }
+
+  function updateList(results, keyword) {
+    const html = results.map(location => {
+      const regex = new RegExp(keyword, 'gi');
+      const matchedCity = location.city.replace(regex, `<span class="hl">${keyword}</span>`);
+      const matchedState = location.city.replace(regex, `<span class="hl">${keyword}</span>`);
+      return `
+        <li>
+          <span class="name">${matchedCity}, ${matchedState}</span>
+          <span class="population">${numberWithCommas(location.population)}</span>
+        </li>
+      `
+    }).join('')
+    resultList.innerHTML = html; 
   }
 
   function handleUserInput(event, data) {
-    event.preventDefault()
-    const keyword = event.target.querySelector('input').value;
+    const keyword = event.target.value;
     const results = findMatches(data, keyword);
-    updateList(results);
+    updateList(results, keyword);
   }
 
   function init() {
-    fetchJSON(endpoint, (data) => {
-      document.querySelector('.search-form')
-        .addEventListener('submit', (event) => {
+    const data = fetchJSON(endpoint);
+
+    searchInput.addEventListener('change', (event) => {
           handleUserInput(event, data);
       });
-    })
+    searchInput.addEventListener('keyup', (event) => {
+          handleUserInput(event, data);
+      });
   }
 
   init();
